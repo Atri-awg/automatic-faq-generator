@@ -268,4 +268,4 @@ Beberapa pengembangan yang dapat dilakukan:
 
 ## Lisensi
 
-Project ini dikembangkan untuk kebutuhan penelitian dan pembelajaran Text Mining menggunakan metode TF-IDF dan Rule-Based.
+Project ini dikembangkan untuk kebutuhan penelitian dan pembelajaran Text Mining dan NLP menggunakan metode TF-IDF dan Rule-Based.

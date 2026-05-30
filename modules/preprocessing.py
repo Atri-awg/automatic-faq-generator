@@ -11,6 +11,28 @@ stopword_remover = factory_stopword.create_stop_word_remover()
 factory_stemmer = StemmerFactory()
 stemmer = factory_stemmer.create_stemmer()
 
+CUSTOM_STOPWORDS = [
+    "sangat",
+    "banget",
+    "bgt",
+    "lumayan",
+    "mantap",
+    "tempat",
+    "wisata",
+    "rekomendasi",
+    "recommended",
+    "recommend",
+    "bagus",
+    "baik",
+    "cukup",
+    "sekali",
+    "benar",
+    "keren",
+    "oke",
+    "ok",
+    "mantul",
+    "sip"
+]
 
 def preprocess_text(text):
     """
@@ -30,6 +52,8 @@ def preprocess_text(text):
     )
 
     text = stopword_remover.remove(text)
+    for word in CUSTOM_STOPWORDS:
+        text = text.replace(word, " ")
 
     text = stemmer.stem(text)
 

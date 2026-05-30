@@ -23,4 +23,8 @@ def extract_tfidf_scores(texts):
         ascending=False
     )
 
+    scores_df = scores_df[
+    scores_df["keyword"].str.len() >= 4
+    ]
+    
     return scores_df

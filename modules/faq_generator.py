@@ -1,28 +1,32 @@
 import pandas as pd
 
+
 FAQ_RULES = {
     "parkir": "Apakah tersedia area parkir?",
     "toilet": "Bagaimana kondisi toilet?",
     "harga": "Berapa kisaran harga tiket masuk?",
     "tiket": "Berapa kisaran harga tiket masuk?",
-    "jalan": "Bagaimana akses menuju lokasi wisata?",
     "akses": "Bagaimana akses menuju lokasi wisata?",
+    "jalan": "Bagaimana akses menuju lokasi wisata?",
     "foto": "Apakah tersedia spot foto menarik?",
-    "makanan": "Apakah tersedia makanan atau kuliner di lokasi?",
-    "kuliner": "Apakah tersedia makanan atau kuliner di lokasi?",
+    "spot": "Apakah tersedia spot foto menarik?",
+    "kuliner": "Apakah tersedia kuliner di lokasi?",
+    "makanan": "Apakah tersedia kuliner di lokasi?",
+    "restoran": "Apakah tersedia kuliner di lokasi?",
     "bersih": "Bagaimana tingkat kebersihan lokasi wisata?",
-    "kebersihan": "Bagaimana tingkat kebersihan lokasi wisata?"
+    "kebersihan": "Bagaimana tingkat kebersihan lokasi wisata?",
+    "pantai": "Apa daya tarik utama pantai ini?",
+    "air": "Bagaimana kondisi area perairan di lokasi wisata?",
+    "wahana": "Apa saja wahana yang tersedia?",
+    "anak": "Apakah lokasi cocok untuk anak-anak?",
+    "keluarga": "Apakah lokasi cocok untuk keluarga?",
+    "view": "Bagaimana kualitas pemandangan di lokasi?",
+    "pemandangan": "Bagaimana kualitas pemandangan di lokasi?",
+    "sunset": "Apakah lokasi memiliki pemandangan sunset yang menarik?",
+    "camping": "Apakah tersedia area camping?",
+    "hotel": "Apakah tersedia penginapan di sekitar lokasi?",
+    "penginapan": "Apakah tersedia penginapan di sekitar lokasi?"
 }
-
-
-def generate_question(keyword):
-
-    for rule_keyword, question in FAQ_RULES.items():
-
-        if rule_keyword in keyword.lower():
-            return question
-
-    return f"Apa informasi mengenai '{keyword}' yang perlu diketahui pengunjung?"
 
 
 def generate_answer(keyword, reviews):
@@ -34,10 +38,10 @@ def generate_answer(keyword, reviews):
         if keyword.lower() in review.lower():
             matched_reviews.append(review)
 
-    if not matched_reviews:
+    if len(matched_reviews) == 0:
         return (
-            f"Beberapa pengunjung menyebutkan '{keyword}' "
-            f"sebagai aspek yang menarik untuk diperhatikan."
+            f"Beberapa pengunjung memberikan ulasan terkait "
+            f"aspek '{keyword}'."
         )
 
     unique_reviews = list(dict.fromkeys(matched_reviews))
@@ -54,18 +58,20 @@ def generate_faq(tfidf_df, reviews, faq_count):
 
     faq_data = []
 
-    used_questions = set()
+    for keyword, question in FAQ_RULES.items():
 
-    top_keywords = tfidf_df.head(faq_count * 5)
+        matched = tfidf_df[
+            tfidf_df["keyword"].str.contains(
+                keyword,
+                case=False,
+                na=False
+            )
+        ]
 
-    for _, row in top_keywords.iterrows():
-
-        keyword = row["keyword"]
-
-        question = generate_question(keyword)
-
-        if question in used_questions:
+        if matched.empty:
             continue
+
+        score = matched["score"].max()
 
         answer = generate_answer(
             keyword,
@@ -73,13 +79,34 @@ def generate_faq(tfidf_df, reviews, faq_count):
         )
 
         faq_data.append({
+            "Score": score,
             "Pertanyaan": question,
             "Jawaban": answer
         })
 
-        used_questions.add(question)
+    faq_df = pd.DataFrame(faq_data)
 
-        if len(faq_data) >= faq_count:
-            break
+    if faq_df.empty:
+        return pd.DataFrame(
+            columns=[
+                "Pertanyaan",
+                "Jawaban"
+            ]
+        )
 
-    return pd.DataFrame(faq_data)
+    faq_df = faq_df.sort_values(
+        by="Score",
+        ascending=False
+    )
+
+    faq_df = faq_df.drop_duplicates(
+        subset=["Pertanyaan"]
+    )
+
+    faq_df = faq_df.head(faq_count)
+
+    faq_df = faq_df[
+        ["Pertanyaan", "Jawaban"]
+    ]
+
+    return faq_df

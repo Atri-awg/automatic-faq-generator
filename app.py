@@ -11,7 +11,7 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("Automatic FAQ Generator untuk Review Wisata Indonesia")
+st.title("Automatic FAQ Generator untuk Review Desa Wisata")
 
 st.markdown("""
 Sistem menghasilkan FAQ secara otomatis menggunakan:

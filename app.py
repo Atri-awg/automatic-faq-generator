@@ -82,7 +82,7 @@ if uploaded_file is not None:
 
     with col1:
         st.metric(
-            "Jumlah Review",
+            "Jumlah Data Review",
             len(df)
         )
 
